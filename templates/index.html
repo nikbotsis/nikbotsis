@@ -1,0 +1,223 @@
+
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Υδραυλικές υπηρεσίες, επισκευές διαρροών και εγκαταστάσεις. Επικοινωνήστε μαζί μας για να συζητήσουμε τις ανάγκες σας.">
+            <title>{{ site.business_name }} | Υδραυλικές Υπηρεσίες {{ site.city }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <header>
+        <nav class="navbar">
+                        <a href="#" class="logo">{{ site.logo_main }}<span>{{ site.logo_accent }}</span></a>
+
+            <div class="nav-links">
+                <a href="#services">Υπηρεσίες</a>
+                                {% if site.gallery %}<a href="#gallery">Δουλειές μας</a>{% endif %}
+                <a href="#about">Για εμάς</a>
+                <a href="#contact" class="nav-button">Επικοινωνία</a>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+               <section class="hero">
+            <div class="hero-content">
+                <p class="eyebrow">{{ site.hero_eyebrow }}</p>
+
+                <h1>{{ site.hero_title }} <span>{{ site.hero_title_accent }}</span></h1>
+
+                <p class="hero-description">
+                    {{ site.hero_description }}
+                </p>
+
+                <a href="#contact" class="primary-button">
+                    Ζητήστε εξυπηρέτηση →
+                </a>
+
+                <p class="hero-note">
+                    {{ site.hero_note }}
+                </p>
+            </div>
+        </section>
+
+        <section id="services" class="services">
+            <div class="section-heading">
+                <p class="eyebrow">ΤΙ ΠΡΟΣΦΕΡΟΥΜΕ</p>
+                <h2>Υπηρεσίες για κάθε ανάγκη</h2>
+                <p>Επιλέξτε την υπηρεσία που σας ενδιαφέρει και στείλτε μας το αίτημά σας.</p>
+            </div>
+
+                       <div class="service-grid">
+                {% for service in site.services %}
+                <article class="service-card">
+                    <div class="service-icon">{{ "%02d"|format(loop.index) }}</div>
+                    <h3>{{ service.title }}</h3>
+                    <p>{{ service.text }}</p>
+                </article>
+                {% endfor %}
+            </div>
+        </section>
+
+                        {% if site.gallery %}
+        <section id="gallery" class="gallery">
+            <div class="section-heading">
+                <p class="eyebrow">ΔΟΥΛΕΙΕΣ ΜΑΣ</p>
+                <h2>Δείτε πώς δουλεύουμε</h2>
+                <p>Μερικές από τις εργασίες που έχουμε ολοκληρώσει.</p>
+            </div>
+
+            <div class="gallery-grid">
+                {% for photo in site.gallery %}
+                <figure class="gallery-item">
+                    <div class="gallery-img">
+                        <img src="{{ url_for('client_image', filename=photo.file) }}"
+                             alt="{{ photo.caption }}" loading="lazy" width="800" height="600">
+                    </div>
+                    <figcaption>{{ photo.caption }}</figcaption>
+                </figure>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+        
+                {% if site.reviews %}
+        <section id="reviews" class="reviews">
+            <div class="section-heading">
+                <p class="eyebrow">ΚΡΙΤΙΚΕΣ</p>
+                <h2>Τι λένε οι πελάτες μας</h2>
+                {% if site.reviews_sample %}
+                <p class="sample-note">Δείγμα για επίδειξη: οι κριτικές θα αντικατασταθούν με πραγματικές κριτικές πελατών.</p>
+                {% endif %}
+            </div>
+
+            <div class="review-grid">
+                {% for review in site.reviews %}
+                {% set r = [[review.rating|int, 5]|min, 0]|max %}
+                <figure class="review-card">
+                    <div class="stars" role="img" aria-label="{{ r }} στα 5 αστέρια">{{ "★" * r }}{{ "☆" * (5 - r) }}</div>
+                    <blockquote>«{{ review.text }}»</blockquote>
+                    <figcaption>
+                        <strong>{{ review.name }}</strong>
+                        {% if review.area %}<span>{{ review.area }}</span>{% endif %}
+                    </figcaption>
+                </figure>
+                {% endfor %}
+            </div>
+
+            {% if site.google_reviews_url %}
+            <p class="reviews-link">
+                <a href="{{ site.google_reviews_url }}" target="_blank" rel="noopener">Δείτε περισσότερες κριτικές στο Google →</a>
+            </p>
+            {% endif %}
+        </section>
+        {% endif %}
+
+                <section id="about" class="about">
+            <p class="eyebrow">Η ΕΞΥΠΗΡΕΤΗΣΗ ΣΑΣ ΜΕΤΡΑΕΙ</p>
+            <h2>{{ site.about_title }}</h2>
+            <p>
+                {{ site.about_text }}
+            </p>
+        </section>
+
+        <section id="contact" class="contact-section">
+            <div class="contact-intro">
+                <p class="eyebrow">ΕΠΙΚΟΙΝΩΝΙΑ</p>
+                <h2>Πώς μπορούμε να σας βοηθήσουμε;</h2>
+                <p>Συμπληρώστε τη φόρμα και θα επικοινωνήσουμε μαζί σας.</p>
+                
+                <div class="contact-details">
+                    <a class="contact-phone" href="tel:{{ site.phone|replace(' ', '') }}">📞 {{ site.phone }}</a>
+                    {% if site.whatsapp %}
+                    <a class="contact-whatsapp" href="https://wa.me/{{ site.phone|replace('+', '')|replace(' ', '') }}">💬 WhatsApp</a>
+                    {% endif %}
+                    <p class="contact-areas">Περιοχές: {{ site.areas|join(", ") }}</p>
+                </div>
+            </div>
+
+                       <form class="contact-form" method="POST" action="/">
+                                        <input type="hidden" name="form_token" value="{{ form_token }}">
+
+                <div class="hp-field" aria-hidden="true">
+                    <label for="extra_field_2">Αφήστε αυτό το πεδίο κενό</label>
+                    <input type="text" id="extra_field_2" name="extra_field_2" tabindex="-1" autocomplete="off">
+                </div>
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        {% for message in messages %}
+                            <p class="flash-message">{{ message }}</p>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <label for="name">Ονοματεπώνυμο</label>
+                                <input type="text" id="name" name="name" autocomplete="name" maxlength="80" required>
+                                <label for="phone">Κινητό τηλέφωνο</label>
+                <input type="tel" id="phone" name="phone" autocomplete="tel" inputmode="tel"
+                    required maxlength="20" placeholder="6912345678"
+                    pattern="[ ]*(\+30|0030)?[ \-]*69([ \-]*[0-9]){8}[ ]*"
+                    title="Γράψτε ένα ελληνικό κινητό τηλέφωνο, 10 ψηφία που ξεκινούν από 69 (π.χ. 6912345678)">
+                               <fieldset class="service-picker">
+                    <legend>Τι πρόβλημα έχετε;</legend>
+
+                                        <div class="service-options">
+                        {% for s in site.services %}
+                        <label class="service-option">
+                            <input type="radio" name="service" value="{{ s.key }}" required>
+                            <span class="option-body">
+                                <span class="option-icon">{{ s.icon }}</span>
+                                <span class="option-title">{{ s.short }}</span>
+                            </span>
+                        </label>
+                        {% endfor %}
+
+                        <label class="service-option is-wide">
+                            <input type="radio" name="service" value="other" required>
+                            <span class="option-body">
+                                <span class="option-icon">💬</span>
+                                <span class="option-title">Άλλο / δεν είμαι σίγουρος</span>
+                            </span>
+                        </label>
+                    </div>
+                </fieldset>
+
+                <label class="urgent-toggle">
+                    <input type="checkbox" name="urgent" value="1">
+                    <span class="urgent-switch"></span>
+                    <span class="urgent-text">
+                        <strong>Είναι επείγον</strong>
+                        <small>Π.χ. πλημμύρα ή διαρροή που δεν σταματά</small>
+                    </span>
+                </label>
+
+                <label for="message">Περιγραφή προβλήματος</label>
+                                <textarea id="message" name="message" rows="4" maxlength="1000"
+                    placeholder="Πείτε μας λίγα λόγια για το πρόβλημα..."></textarea>
+
+                <button type="submit">Αποστολή αιτήματος →</button>
+
+                
+<p class="form-note">
+    Τα στοιχεία σας χρησιμοποιούνται μόνο για να επικοινωνήσουμε μαζί σας.
+</p>
+            </form>
+        </section>
+    </main>
+
+    <footer>
+               <p>© 2026 {{ site.business_name }}. Όλα τα δικαιώματα διατηρούνται.</p>
+    </footer>
+
+    
+    <div class="call-bar">
+        <a class="call-bar-call" href="tel:{{ site.phone|replace(' ', '') }}">📞 Κάλεσε τώρα</a>
+        {% if site.whatsapp %}
+        <a class="call-bar-whatsapp" href="https://wa.me/{{ site.phone|replace('+', '')|replace(' ', '') }}" target="_blank" rel="noopener">💬 WhatsApp</a>
+        {% endif %}
+    </div>
+</body>
+</html>

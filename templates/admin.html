@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+        <title>Αιτήματα | {{ site.business_name }} Admin</title>
+    <style>
+        body { font-family: Arial, Helvetica, sans-serif; background: #f4f7fb; color: #263445; margin: 0; padding: 20px; }
+        h1 { color: #10243a; margin-bottom: 4px; }
+        .count { color: #68788a; margin-bottom: 18px; }
+        .card { background: #fff; border: 1px solid #e0e7ef; border-radius: 12px; padding: 16px; margin-bottom: 14px; max-width: 640px; }
+        .card.status-new { border-left: 6px solid #1687e8; }
+        .card.status-called { border-left: 6px solid #f0a020; }
+        .card.status-done { border-left: 6px solid #2eaa5a; opacity: 0.75; }
+        .top { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .badge { background: #eaf5ff; color: #1687e8; border-radius: 20px; padding: 4px 12px; font-size: 13px; font-weight: 700; }
+                .badges { display: flex; gap: 6px; flex-wrap: wrap; }
+        .badge-urgent { background: #fdecec; color: #d92d20; border-radius: 20px; padding: 4px 12px; font-size: 13px; font-weight: 700; }
+        .call { display: inline-block; background: #1687e8; color: #fff; text-decoration: none; padding: 10px 16px; border-radius: 8px; font-weight: 700; }
+        .msg { background: #f4f7fb; border-radius: 8px; padding: 10px; white-space: pre-wrap; }
+        .date { color: #68788a; font-size: 13px; margin: 8px 0 0; }
+        .status-form { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+        .status-btn { border: 1px solid #ccd6e0; background: #fff; color: #263445; border-radius: 8px; padding: 9px 12px; font-size: 14px; cursor: pointer; }
+        .status-btn.active { background: #10243a; color: #fff; border-color: #10243a; font-weight: 700; }
+                .delete-form { margin-top: 10px; }
+        .delete-btn { border: 1px solid #f1b5b0; background: #fff; color: #d92d20; border-radius: 8px; padding: 8px 12px; font-size: 13px; cursor: pointer; }
+        .delete-btn:hover { background: #fdecec; }
+    </style>
+</head>
+<body>
+    <h1>Αιτήματα πελατών</h1>
+    <p class="count">Σύνολο: {{ customers|length }}</p>
+
+    {% for c in customers %}
+        {% set current = c["status"] or "new" %}
+        <div class="card status-{{ current }}" id="request-{{ c['id'] }}">
+            <div class="top">
+                <strong>{{ c["name"] }}</strong>
+                                <div class="badges">
+                    <span class="badge">{{ service_labels.get(c["service"], c["service"]) }}</span>
+                    {% if c["urgent"] %}<span class="badge-urgent">🚨 ΕΠΕΙΓΟΝ</span>{% endif %}
+                </div>
+            </div>
+            <p><a class="call" href="tel:{{ c['phone'] }}">📞 {{ c["phone"] }}</a></p>
+            {% if c["message"] %}
+                <p class="msg">{{ c["message"] }}</p>
+            {% endif %}
+            <p class="date">{{ c["created_at"] or "—" }}</p>
+
+                  <form class="status-form" method="POST" action="{{ url_for('update_status', customer_id=c['id']) }}">
+                <input type="hidden" name="csrf" value="{{ csrf_token }}">
+                {% for key, label in status_labels.items() %}
+                    <button type="submit" name="status" value="{{ key }}"
+                        class="status-btn {% if current == key %}active{% endif %}">{{ label }}</button>
+                {% endfor %}
+            </form>
+
+            <form class="delete-form" method="POST" action="{{ url_for('delete_request', customer_id=c['id']) }}"
+                onsubmit="return confirm('Να διαγραφεί οριστικά αυτό το αίτημα; Η ενέργεια δεν αναιρείται.');">
+                <input type="hidden" name="csrf" value="{{ csrf_token }}">
+                <button type="submit" class="delete-btn">🗑️ Διαγραφή</button>
+            </form>
+        </div>
+    {% else %}
+        <p>Δεν υπάρχουν αιτήματα ακόμα.</p>
+    {% endfor %}
+</body>
+</html>
